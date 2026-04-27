@@ -1,12 +1,14 @@
 #!/usr/bin/env sh
-# Reject commits whose subject doesn't follow Conventional Commits.
-# Bypass with `git commit --no-verify` when truly needed.
+# Reject commits whose subject doesn't follow Conventional Commits, or
+# whose body has lines longer than 100 characters (matches commitlint's
+# body-max-line-length default). Bypass with `git commit --no-verify`.
 
 # Skip auto-generated merge messages — `git merge` writes "Merge branch ..."
 if [ "${2:-}" = "merge" ]; then
   exit 0
 fi
 
+# --- Subject ---
 subject=$(grep -v '^#' "$1" | sed -n '/[^[:space:]]/{p;q;}')
 pattern='^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\([^)]+\))?!?: .+'
 
@@ -25,5 +27,20 @@ Commit subject does not match Conventional Commits format.
 
 MSG
   printf 'Got: %s\n' "$subject" >&2
+  exit 1
+fi
+
+# --- Body line length ---
+max_body_line=100
+violations=$(grep -v '^#' "$1" \
+  | tail -n +2 \
+  | awk -v max="$max_body_line" 'length > max { printf "  L%d (%d chars): %s\n", NR + 1, length, $0 }')
+
+if [ -n "$violations" ]; then
+  cat >&2 <<MSG
+Commit body has line(s) longer than $max_body_line characters:
+$violations
+Wrap them around 72-100 columns.
+MSG
   exit 1
 fi
