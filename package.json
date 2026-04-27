@@ -1,6 +1,6 @@
 {
   "name": "@imlunahey/psn-api",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "PlayStation Network API client",
   "license": "MIT",
   "type": "module",
