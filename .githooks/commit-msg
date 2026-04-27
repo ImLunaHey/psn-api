@@ -1,0 +1,29 @@
+#!/usr/bin/env sh
+# Reject commits whose subject doesn't follow Conventional Commits.
+# Bypass with `git commit --no-verify` when truly needed.
+
+# Skip auto-generated merge messages — `git merge` writes "Merge branch ..."
+if [ "${2:-}" = "merge" ]; then
+  exit 0
+fi
+
+subject=$(grep -v '^#' "$1" | sed -n '/[^[:space:]]/{p;q;}')
+pattern='^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\([^)]+\))?!?: .+'
+
+if ! printf '%s' "$subject" | grep -qE "$pattern"; then
+  cat >&2 <<'MSG'
+Commit subject does not match Conventional Commits format.
+
+  Format:  <type>(<scope>)?!?: <description>
+  Types:   build, chore, ci, docs, feat, fix, perf, refactor, revert, style, test
+
+  Examples:
+    feat: add user search
+    fix(auth): handle expired tokens
+    feat!: rename users.byName to users.find
+    chore(release): 1.2.0
+
+MSG
+  printf 'Got: %s\n' "$subject" >&2
+  exit 1
+fi
