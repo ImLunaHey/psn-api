@@ -4,6 +4,14 @@
   "description": "PlayStation Network API client",
   "license": "MIT",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ImLunaHey/psn-api.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ImLunaHey/psn-api/issues"
+  },
+  "homepage": "https://github.com/ImLunaHey/psn-api#readme",
   "publishConfig": {
     "access": "public"
   },
